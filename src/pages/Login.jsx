@@ -11,8 +11,12 @@ export default function Login() {
     e.preventDefault();
     setError('');
 
+    // Obtenemos la URL de la API desde las variables de entorno de Vite.
+    // Si no está definida (por ejemplo, en local sin .env), recurre por defecto a localhost.
+    const API_URL = import.meta.env.VITE_API_URL || 'http://127.0.0.1:8000';
+
     try {
-      const response = await fetch('http://127.0.0.1:8000/api/admin/login', {
+      const response = await fetch(`${API_URL}/api/admin/login`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
