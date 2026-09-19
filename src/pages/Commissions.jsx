@@ -11,7 +11,7 @@ export default function Commissions() {
   const handleSubmit = (e) => {
     e.preventDefault();
 
-    // Reemplaza este número con tu número real de WhatsApp (ej: 573001234567 con código de país)
+    // Reemplaza este número con tu número real de WhatsApp con código de país
     const phoneNumber = "573013840860"; 
 
     // Construir el mensaje personalizado para WhatsApp
@@ -23,17 +23,36 @@ export default function Commissions() {
 
     // Abrir WhatsApp con el mensaje prellenado
     window.open(`https://wa.me/${phoneNumber}?text=${message}`, '_blank');
+
+    // Limpiar los campos del formulario para un nuevo cliente
+    setClientName('');
+    setProjectType('Coches');
+    setBudget('');
+    setDetails('');
   };
 
   return (
     <div style={{ fontFamily: 'Inter, system-ui, sans-serif', backgroundColor: '#090d16', color: '#f8fafc', minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
       
-      {/* Barra de Navegación */}
-      <nav style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '20px 40px', borderBottom: '1px solid rgba(255, 255, 255, 0.08)', backgroundColor: 'rgba(9, 13, 22, 0.8)', backdropFilter: 'blur(10px)', position: 'sticky', top: 0, zIndex: 100 }}>
+      {/* Barra de Navegación Responsiva */}
+      <nav style={{ 
+        display: 'flex', 
+        justifyContent: 'space-between', 
+        alignItems: 'center', 
+        flexWrap: 'wrap', 
+        gap: '15px', 
+        padding: '15px 25px', 
+        borderBottom: '1px solid rgba(255, 255, 255, 0.08)', 
+        backgroundColor: 'rgba(9, 13, 22, 0.85)', 
+        backdropFilter: 'blur(10px)', 
+        position: 'sticky', 
+        top: 0, 
+        zIndex: 100 
+      }}>
         <h2 style={{ margin: 0, fontSize: '1.25rem', background: 'linear-gradient(90deg, #38bdf8, #818cf8)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>
           🎨 Mi Portafolio Creativo
         </h2>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '25px', fontSize: '0.95rem' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '20px', fontSize: '0.95rem', flexWrap: 'wrap' }}>
           <Link to="/" style={{ color: '#94a3b8', textDecoration: 'none', transition: 'color 0.2s' }}>Galería</Link>
           <Link to="/commissions" style={{ color: '#38bdf8', textDecoration: 'none', fontWeight: '600' }}>Pedir Encargo</Link>
           <Link to="/login" style={{ color: '#94a3b8', textDecoration: 'none', transition: 'color 0.2s' }}>Admin</Link>
@@ -41,16 +60,16 @@ export default function Commissions() {
       </nav>
 
       {/* Contenido Principal */}
-      <div style={{ flex: 1, maxWidth: '700px', margin: '50px auto', padding: '0 20px', width: '100%', boxSizing: 'border-box' }}>
+      <div style={{ flex: 1, maxWidth: '700px', margin: '40px auto', padding: '0 20px', width: '100%', boxSizing: 'border-box' }}>
         
-        <div style={{ textAlign: 'center', marginBottom: '40px' }}>
+        <div style={{ textAlign: 'center', marginBottom: '35px' }}>
           <h1 style={{ fontSize: '2.3rem', fontWeight: '800', marginBottom: '10px' }}>Solicita tu Encargo</h1>
           <p style={{ color: '#94a3b8', fontSize: '1.05rem', lineHeight: '1.5' }}>
             ¿Tienes una idea en mente? Cuéntame los detalles y conversemos directamente por WhatsApp para hacerla realidad.
           </p>
         </div>
 
-        <div style={{ backgroundColor: '#131b2e', padding: '35px', borderRadius: '16px', border: '1px solid rgba(255, 255, 255, 0.08)', boxShadow: '0 15px 35px rgba(0,0,0,0.3)' }}>
+        <div style={{ backgroundColor: '#131b2e', padding: '30px', borderRadius: '16px', border: '1px solid rgba(255, 255, 255, 0.08)', boxShadow: '0 15px 35px rgba(0,0,0,0.3)' }}>
           <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
             
             <div>
@@ -120,8 +139,6 @@ export default function Commissions() {
                 transition: 'background 0.2s',
                 marginTop: '10px'
               }}
-              onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#16a34a'}
-              onMouseLeave={(e) => e.currentTarget.style.backgroundColor = '#22c55e'}
             >
               💬 Enviar Cotización por WhatsApp
             </button>

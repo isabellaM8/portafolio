@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import Footer from '../components/Footer';
 
@@ -8,9 +8,19 @@ export default function Home() {
   const [selectedCategory, setSelectedCategory] = useState('Todos');
   const [searchTerm, setSearchTerm] = useState('');
   const [loading, setLoading] = useState(true);
-  const [selectedDesign, setSelectedDesign] = useState(null); // Estado para el modal de vista detallada
+  const [selectedDesign, setSelectedDesign] = useState(null);
+  
+  // Estado para verificar si hay sesión de admin activa
+  const [isAdmin, setIsAdmin] = useState(false);
+  const navigate = useNavigate();
 
   useEffect(() => {
+    // Comprobar si existe el token de administrador
+    const adminToken = localStorage.getItem('admin_token');
+    if (adminToken) {
+      setIsAdmin(true);
+    }
+
     // Cargar los diseños desde Laravel
     axios.get('http://127.0.0.1:8000/api/designs')
       .then(response => {
@@ -23,14 +33,20 @@ export default function Home() {
       });
   }, []);
 
-  // Filtrar por categoría y término de búsqueda
+  const handleLogout = () => {
+    localStorage.removeItem('admin_token');
+    setIsAdmin(false);
+    navigate('/');
+  };
+
+  // Filtrar por categoría y término de búsqueda de forma robusta
   const filteredDesigns = designs.filter(design => {
     const designCat = design.category ? design.category.toLowerCase().trim() : '';
     const selectedCat = selectedCategory.toLowerCase().trim();
 
     const matchesCategory = selectedCategory === 'Todos' || 
       designCat === selectedCat || 
-      (selectedCat === 'coches' && designCat === 'automotriz');
+      (selectedCat === 'coches' && (designCat === 'automotriz' || designCat === 'coche'));
 
     const matchesSearch = design.title.toLowerCase().includes(searchTerm.toLowerCase()) || 
                           design.description.toLowerCase().includes(searchTerm.toLowerCase());
@@ -42,7 +58,7 @@ export default function Home() {
   return (
     <div style={{ fontFamily: 'Inter, system-ui, sans-serif', backgroundColor: '#090d16', color: '#f8fafc', minHeight: '100vh', position: 'relative', overflowX: 'hidden' }}>
       
-      {/* Luz ambiental de fondo (Mejora Visual) */}
+      {/* Luz ambiental de fondo */}
       <div style={{
         position: 'absolute',
         top: '70px',
@@ -56,15 +72,42 @@ export default function Home() {
         pointerEvents: 'none'
       }} />
 
-      {/* Barra de Navegación */}
-      <nav style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '20px 40px', borderBottom: '1px solid rgba(255, 255, 255, 0.08)', backgroundColor: 'rgba(9, 13, 22, 0.85)', backdropFilter: 'blur(10px)', position: 'sticky', top: 0, zIndex: 100 }}>
+      {/* Barra de Navegación Responsiva */}
+      <nav style={{ 
+        display: 'flex', 
+        justifyContent: 'space-between', 
+        alignItems: 'center', 
+        flexWrap: 'wrap', 
+        gap: '15px', 
+        padding: '15px 25px', 
+        borderBottom: '1px solid rgba(255, 255, 255, 0.08)', 
+        backgroundColor: 'rgba(9, 13, 22, 0.85)', 
+        backdropFilter: 'blur(10px)', 
+        position: 'sticky', 
+        top: 0, 
+        zIndex: 100 
+      }}>
         <h2 style={{ margin: 0, fontSize: '1.25rem', letterSpacing: '0.5px', background: 'linear-gradient(90deg, #38bdf8, #818cf8)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>
           🎨 Mi Portafolio Creativo
         </h2>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '25px', fontSize: '0.95rem' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '20px', fontSize: '0.95rem', flexWrap: 'wrap' }}>
           <Link to="/" style={{ color: '#38bdf8', textDecoration: 'none', fontWeight: '600' }}>Galería</Link>
           <Link to="/commissions" style={{ color: '#94a3b8', textDecoration: 'none', transition: 'color 0.2s' }}>Pedir Encargo</Link>
-          <Link to="/login" style={{ color: '#94a3b8', textDecoration: 'none', transition: 'color 0.2s' }}>Admin</Link>
+          
+          {/* Condicional: Si es admin muestra el panel y cerrar sesión, si no, oculta el acceso */}
+          {isAdmin ? (
+            <>
+              <Link to="/admin" style={{ color: '#38bdf8', textDecoration: 'none', fontWeight: '600' }}>Panel Admin</Link>
+              <button 
+                onClick={handleLogout}
+                style={{ background: 'transparent', border: '1px solid rgba(239, 68, 68, 0.4)', color: '#ef4444', padding: '6px 14px', borderRadius: '8px', cursor: 'pointer', fontSize: '0.85rem' }}
+              >
+                Cerrar Sesión
+              </button>
+            </>
+          ) : (
+            <Link to="/login" style={{ color: '#94a3b8', textDecoration: 'none', transition: 'color 0.2s' }}>Admin</Link>
+          )}
         </div>
       </nav>
 
@@ -78,7 +121,7 @@ export default function Home() {
         </p>
 
         {/* Buscador */}
-        <div style={{ maxWidth: '400px', margin: '0 auto 25px auto' }}>
+        <div style={{ maxWidth: '400px', margin: '0 auto 25px auto', padding: '0 15px', boxSizing: 'border-box' }}>
           <input 
             type="text" 
             placeholder="Buscar por título o descripción..." 
@@ -89,7 +132,7 @@ export default function Home() {
         </div>
 
         {/* Botones de Categorías */}
-        <div style={{ display: 'flex', justifyContent: 'center', gap: '10px', flexWrap: 'wrap', marginBottom: '40px' }}>
+        <div style={{ display: 'flex', justifyContent: 'center', gap: '10px', flexWrap: 'wrap', marginBottom: '40px', padding: '0 10px' }}>
           {categories.map(cat => (
             <button
               key={cat}
@@ -116,7 +159,7 @@ export default function Home() {
         {loading ? (
           <p style={{ textAlign: 'center', color: '#94a3b8' }}>Cargando creaciones...</p>
         ) : filteredDesigns.length > 0 ? (
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(320px, 1fr))', gap: '25px' }}>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: '25px' }}>
             {filteredDesigns.map(design => (
               <div 
                 key={design.id} 
@@ -132,16 +175,6 @@ export default function Home() {
                   cursor: 'pointer',
                   transform: 'translateY(0)',
                   transition: 'all 0.3s ease'
-                }}
-                onMouseEnter={(e) => {
-                  e.currentTarget.style.transform = 'translateY(-6px)';
-                  e.currentTarget.style.borderColor = 'rgba(56, 189, 248, 0.6)';
-                  e.currentTarget.style.boxShadow = '0 12px 30px -10px rgba(56, 189, 248, 0.3)';
-                }}
-                onMouseLeave={(e) => {
-                  e.currentTarget.style.transform = 'translateY(0)';
-                  e.currentTarget.style.borderColor = 'rgba(255, 255, 255, 0.06)';
-                  e.currentTarget.style.boxShadow = '0 8px 20px rgba(0,0,0,0.2)';
                 }}
               >
                 <img 
@@ -166,13 +199,13 @@ export default function Home() {
             ))}
           </div>
         ) : (
-          <div style={{ textAlign: 'center', padding: '60px', backgroundColor: '#131b2e', borderRadius: '16px', border: '1px dashed rgba(255, 255, 255, 0.1)', maxWidth: '600px', margin: '0 auto' }}>
+          <div style={{ textAlign: 'center', padding: '60px 20px', backgroundColor: '#131b2e', borderRadius: '16px', border: '1px dashed rgba(255, 255, 255, 0.1)', maxWidth: '600px', margin: '0 auto' }}>
             <p style={{ color: '#94a3b8', fontSize: '1.05rem', margin: 0 }}>No hay obras registradas en esta categoría o búsqueda.</p>
           </div>
         )}
       </main>
 
-      {/* Modal de Vista Detallada (Lightbox) */}
+      {/* Modal de Vista Detallada */}
       {selectedDesign && (
         <div style={{
           position: 'fixed',
@@ -186,7 +219,8 @@ export default function Home() {
           justifyContent: 'center',
           alignItems: 'center',
           zIndex: 1000,
-          padding: '20px'
+          padding: '15px',
+          boxSizing: 'border-box'
         }} onClick={() => setSelectedDesign(null)}>
           <div style={{
             backgroundColor: '#131b2e',
@@ -199,7 +233,6 @@ export default function Home() {
             boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.7)'
           }} onClick={(e) => e.stopPropagation()}>
             
-            {/* Botón Cerrar */}
             <button 
               onClick={() => setSelectedDesign(null)}
               style={{
@@ -231,13 +264,13 @@ export default function Home() {
                     : `http://127.0.0.1:8000/storage/${selectedDesign.image_url}`
                 } 
                 alt={selectedDesign.title} 
-                style={{ width: '100%', maxHeight: '480px', objectFit: 'contain', backgroundColor: '#000' }} 
+                style={{ width: '100%', maxHeight: '400px', objectFit: 'contain', backgroundColor: '#000' }} 
               />
-              <div style={{ padding: '28px' }}>
+              <div style={{ padding: '24px' }}>
                 <span style={{ fontSize: '0.85rem', color: '#38bdf8', textTransform: 'uppercase', fontWeight: '700' }}>
                   {selectedDesign.category}
                 </span>
-                <h2 style={{ color: '#fff', margin: '8px 0 12px 0', fontSize: '1.8rem' }}>
+                <h2 style={{ color: '#fff', margin: '8px 0 12px 0', fontSize: '1.6rem' }}>
                   {selectedDesign.title}
                 </h2>
                 <p style={{ color: '#94a3b8', fontSize: '1rem', lineHeight: '1.6', margin: 0 }}>
