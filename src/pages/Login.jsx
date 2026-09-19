@@ -13,7 +13,7 @@ export default function Login() {
 
     // Obtenemos la URL de la API desde las variables de entorno de Vite.
     // Si no está definida (por ejemplo, en local sin .env), recurre por defecto a localhost.
-    const API_URL = import.meta.env.VITE_API_URL || 'http://127.0.0.1:8000';
+    const API_URL = import.meta.env.VITE_API_URL || 'https://backend-portafolio-production-be5a.up.railway.app';
 
     try {
       const response = await fetch(`${API_URL}/api/admin/login`, {
